@@ -36,10 +36,10 @@ get_features <- function(data, family= "NO", df_mu=5, degree_mu= 1,
                              sigma.formula =~ splines::bs(x, df=df_sig, degree = degree_sig),
                              family = family, control = gamlss::gamlss.control(trace=FALSE))
     #coefficients of basis for location (log-scale)
-    loc_f<- stats::coef(fit_g)[-1]
+    loc_f<- stats::coef(fit_g)[-1] %>% scale()
 
     #coefficients of basis for scale (log-scale)
-    scale_f<- stats::coef(fit_g, what='sigma')[-1]
+    scale_f<- stats::coef(fit_g, what='sigma')[-1] %>% scale
     features <- c(i, loc_f, scale_f ) %>% unname()
     names(features) <- c("id", paste("f", 1:(length(features)-1), sep =""))
     #print(i)

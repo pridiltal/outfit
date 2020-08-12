@@ -14,7 +14,7 @@ Status](https://travis-ci.org/pridiltal/outfit.svg?branch=master)](https://travi
 [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/outfit)](https://cran.r-project.org/web/packages/outfit/index.html)
 [![](http://cranlogs.r-pkg.org/badges/outfit)](http://cran.rstudio.com/web/packages/outfit/index.html)
 
-[![Last-changedate](https://img.shields.io/badge/last%20change-2020--08--12-yellowgreen.svg)](/commits/master)
+[![Last-changedate](https://img.shields.io/badge/last%20change-2020--08--13-yellowgreen.svg)](/commits/master)
 <!-- badges: end -->
 
 The goal of outfit is to detect outliers in multivariate functional data
@@ -108,8 +108,8 @@ p
 ``` r
 library(GGally)
 data <- utilization_curves %>%
-  dplyr::select(id, y) 
-features <- outfit::get_features(data = data, df_mu = 10)
+  dplyr::select(id, y)
+features <- outfit::get_features(data = data, family = "NO")
 
 d <- utilization_curves %>%
   dplyr::select(id, subspaceid) %>%
@@ -129,6 +129,8 @@ p <- GGally::ggparcoord(features,
   theme(legend.position = "bottom") +
   xlab("Features") +
   ylab("Values")
+
+# plotly::ggplotly(p)
 print(p)
 ```
 
@@ -154,14 +156,14 @@ d <- utilization_curves %>%
 data_score <- full_join(d,score, by = "id")
 data_score %>% arrange(desc(score)) %>% head(10)
 #>     id               subspaceid     score
-#> 1  305             0 anomaly_rw 1.2254934
-#> 2   12   1 constant_scale_shape 0.6530229
-#> 3  273   3 constant_scale_shape 0.6221775
-#> 4  276   4 constant_scale_shape 0.5943441
-#> 5  295   4 constant_scale_shape 0.5872774
-#> 6  301 0 anomaly_location_shift 0.5428492
-#> 7  263   3 constant_scale_shape 0.4285281
-#> 8  185   4 constant_scale_shape 0.3360587
-#> 9  245   2 constant_scale_shape 0.3245990
-#> 10 230   2 constant_scale_shape 0.3184717
+#> 1  305             0 anomaly_rw 1.5584558
+#> 2  281   4 constant_scale_shape 0.8457432
+#> 3  301 0 anomaly_location_shift 0.6165525
+#> 4  202   1 constant_scale_shape 0.4346108
+#> 5  204   1 constant_scale_shape 0.4205720
+#> 6  212   1 constant_scale_shape 0.4158072
+#> 7  214   1 constant_scale_shape 0.3613625
+#> 8  279   4 constant_scale_shape 0.3202449
+#> 9  296   4 constant_scale_shape 0.2727066
+#> 10 234   2 constant_scale_shape 0.2691825
 ```
