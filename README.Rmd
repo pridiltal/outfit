@@ -9,7 +9,9 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.path = "man/figures/README-",
-  out.width = "100%"
+  out.width = "100%",
+  message = FALSE,
+  warning = FALSE
 )
 ```
 
@@ -41,12 +43,28 @@ And the development version from [GitHub](https://github.com/) with:
 # install.packages("devtools")
 devtools::install_github("pridiltal/outfit")
 ```
-## Example
-
-This is a basic example which shows you how to solve a common problem:
+## Explore `utilization_curves` dataset
 
 ```{r example}
 library(outfit)
+library(tidyverse)
 ## basic example code
 head(utilization_curves)
+
+p <- utilization_curves %>%
+  ggplot(aes(x = cpu, y = y, group = id, color= subspaceid)) +
+  geom_line() +
+  facet_wrap(~subspaceid, scales = "free_y", nrow = 2) +
+  theme(text = element_text(size=10), legend.position = "bottom" )+
+  scale_color_viridis_d()
+
+print(p)
+
+frq <- utilization_curves %>%
+  dplyr::select(id, subspaceid) %>%
+  unique() %>% 
+  group_by(subspaceid) %>% 
+  tally()
+
+print(frq)
 ```

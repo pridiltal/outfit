@@ -35,12 +35,11 @@ And the development version from [GitHub](https://github.com/) with:
 devtools::install_github("pridiltal/outfit")
 ```
 
-## Example
-
-This is a basic example which shows you how to solve a common problem:
+## Explore `utilization_curves` dataset
 
 ``` r
 library(outfit)
+library(tidyverse)
 ## basic example code
 head(utilization_curves)
 #>   basisid id         cpu   y             subspaceid
@@ -50,4 +49,37 @@ head(utilization_curves)
 #> 4       1  1 0.005992975  96 1 constant_scale_shape
 #> 5       1  1 0.010085913  97 1 constant_scale_shape
 #> 6       1  1 0.013900140 113 1 constant_scale_shape
+
+p <- utilization_curves %>%
+  ggplot(aes(x = cpu, y = y, group = id, color= subspaceid)) +
+  geom_line() +
+  facet_wrap(~subspaceid, scales = "free_y", nrow = 2) +
+  theme(text = element_text(size=10), legend.position = "bottom" )+
+  scale_color_viridis_d()
+
+print(p)
+```
+
+<img src="man/figures/README-example-1.png" width="100%" />
+
+``` r
+
+frq <- utilization_curves %>%
+  dplyr::select(id, subspaceid) %>%
+  unique() %>% 
+  group_by(subspaceid) %>% 
+  tally()
+
+print(frq)
+#> # A tibble: 8 x 2
+#>   subspaceid                   n
+#>   <chr>                    <int>
+#> 1 0 anomaly_location_shift     1
+#> 2 0 anomaly_rw                 1
+#> 3 0 anomaly_scale_shift        2
+#> 4 0 anomaly_shape_shift        1
+#> 5 1 constant_scale_shape      75
+#> 6 2 constant_scale_shape      75
+#> 7 3 constant_scale_shape      75
+#> 8 4 constant_scale_shape      75
 ```
