@@ -1,5 +1,5 @@
 Package: outfit
-Title: What the Package Does (One Line, Title Case)
+Title: Outlier Detection in Multivariate Functional Data
 Version: 0.0.0.9000
 Authors@R: c(
     person(given = "Priyanga Dilini",
@@ -12,7 +12,7 @@ Authors@R: c(
            role = c("aut"),
            email = "cole.sodja@microsoft.com")
            )
-Description: What the package does (one paragraph).
+Description: Provides a framework to detect outliers in multivariate functional data.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
