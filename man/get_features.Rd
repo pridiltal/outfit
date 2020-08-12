@@ -6,7 +6,7 @@
 \usage{
 get_features(
   data,
-  family = NO,
+  family = "NO",
   df_mu = 5,
   degree_mu = 1,
   df_sig = 4,

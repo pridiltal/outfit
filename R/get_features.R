@@ -1,4 +1,3 @@
-globalVariables(c("NO"))
 #' Extract features from multivariate functional data
 #'
 #' @description This function extract features from
@@ -16,15 +15,14 @@ globalVariables(c("NO"))
 #' @param degree_sig Degree of the piecewise polynomial-sigma; default is 1
 #' @param df_sig Degrees of freedom - sigma;
 #' @return An object of class features.
-#' @export
-#' @importFrom gamlss gamlss
+#' @import gamlss
 #' @importFrom splines bs
 #' @importFrom dplyr filter
 #' @importFrom purrr map
 #' @importFrom stats coef
 #' @importFrom magrittr "%>%"
-#'
-get_features <- function(data, family= NO, df_mu=5, degree_mu= 1,
+#' @export
+get_features <- function(data, family= "NO", df_mu=5, degree_mu= 1,
                          df_sig=4, degree_sig= 1){
 
   calc_bs_features <- function(i) {
@@ -36,7 +34,7 @@ get_features <- function(data, family= NO, df_mu=5, degree_mu= 1,
     # B-spline for both location and scale
     fit_g <- gamlss::gamlss( y ~ splines::bs(x, df=df_mu, degree=degree_mu),
                              sigma.formula =~ splines::bs(x, df=df_sig, degree = degree_sig),
-                             family = family)
+                             family = family, control = gamlss::gamlss.control(trace=FALSE))
     #coefficients of basis for location (log-scale)
     loc_f<- stats::coef(fit_g)[-1]
 

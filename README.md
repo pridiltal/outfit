@@ -83,3 +83,32 @@ print(frq)
 #> 7 3 constant_scale_shape      75
 #> 8 4 constant_scale_shape      75
 ```
+
+``` r
+library(GGally)
+data <- utilization_curves %>%
+  dplyr::select(id, y) 
+features <- outfit::get_features(data = data)
+
+d <- utilization_curves %>%
+  dplyr::select(id, subspaceid) %>%
+  unique()
+
+features <- dplyr::full_join(features, d, by = "id" )
+
+
+
+p <- GGally::ggparcoord(features,
+  columns = 2:10, groupColumn = 11, order = "Outlying",
+  showPoints = TRUE,
+  alphaLines = 0.4, scale = "uniminmax",
+) +
+  #scale_color_brewer(palette = "RdYlGn") +
+  scale_color_viridis_d() +
+  theme(legend.position = "bottom") +
+  xlab("Features") +
+  ylab("Values")
+print(p)
+```
+
+<img src="man/figures/README-outfit-1.png" width="100%" />
