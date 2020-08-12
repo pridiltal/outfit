@@ -84,11 +84,32 @@ print(frq)
 #> 8 4 constant_scale_shape      75
 ```
 
+## Outlying Series
+
+``` r
+types <- unique(utilization_curves$subspaceid)
+
+out_data <- utilization_curves %>%
+  filter(subspaceid %in% c("0 anomaly_location_shift", "0 anomaly_scale_shift", "0 anomaly_shape_shift", "0 anomaly_rw" ))
+
+p <- out_data %>%
+  ggplot(aes(x = cpu, y = y, group = subspaceid, color= subspaceid)) +
+  geom_line() +
+  facet_wrap(vars(subspaceid, id), scales = "free_y", nrow = 2) +
+  theme(text = element_text(size=10), legend.position = "bottom" )+
+  scale_color_viridis_d()
+p
+```
+
+<img src="man/figures/README-outlier-1.png" width="100%" />
+
+## Extract features
+
 ``` r
 library(GGally)
 data <- utilization_curves %>%
   dplyr::select(id, y) 
-features <- outfit::get_features(data = data)
+features <- outfit::get_features(data = data, df_mu = 10)
 
 d <- utilization_curves %>%
   dplyr::select(id, subspaceid) %>%
@@ -99,9 +120,9 @@ features <- dplyr::full_join(features, d, by = "id" )
 
 
 p <- GGally::ggparcoord(features,
-  columns = 2:10, groupColumn = 11, order = "Outlying",
+  columns = 2: (ncol(features)-1), groupColumn = ncol(features), order = "Outlying",
   showPoints = TRUE,
-  alphaLines = 0.4, scale = "uniminmax",
+  alphaLines = 0.4, scale = "uniminmax"
 ) +
   #scale_color_brewer(palette = "RdYlGn") +
   scale_color_viridis_d() +
@@ -111,4 +132,36 @@ p <- GGally::ggparcoord(features,
 print(p)
 ```
 
-<img src="man/figures/README-outfit-1.png" width="100%" />
+<img src="man/figures/README-features-1.png" width="100%" />
+
+``` r
+out <- stray::find_HDoutliers(features[, 2:(ncol(features)-1)], alpha = 0.01
+)
+
+utilization_curves %>%
+  filter(id %in%(out$outliers)) %>%
+  select(id, subspaceid) %>%
+  unique()
+#>    id   subspaceid
+#> 1 305 0 anomaly_rw
+
+score <- data.frame(id = 1:nrow(features), score = out$out_scores)
+
+d <- utilization_curves %>%
+  dplyr::select(id, subspaceid) %>%
+  unique()
+
+data_score <- full_join(d,score, by = "id")
+data_score %>% arrange(desc(score)) %>% head(10)
+#>     id               subspaceid     score
+#> 1  305             0 anomaly_rw 1.2254934
+#> 2   12   1 constant_scale_shape 0.6530229
+#> 3  273   3 constant_scale_shape 0.6221775
+#> 4  276   4 constant_scale_shape 0.5943441
+#> 5  295   4 constant_scale_shape 0.5872774
+#> 6  301 0 anomaly_location_shift 0.5428492
+#> 7  263   3 constant_scale_shape 0.4285281
+#> 8  185   4 constant_scale_shape 0.3360587
+#> 9  245   2 constant_scale_shape 0.3245990
+#> 10 230   2 constant_scale_shape 0.3184717
+```

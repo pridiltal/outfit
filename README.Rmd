@@ -69,12 +69,30 @@ frq <- utilization_curves %>%
 print(frq)
 ```
 
+## Outlying Series
 
-```{r outfit}
+```{r outlier}
+types <- unique(utilization_curves$subspaceid)
+
+out_data <- utilization_curves %>%
+  filter(subspaceid %in% c("0 anomaly_location_shift", "0 anomaly_scale_shift", "0 anomaly_shape_shift", "0 anomaly_rw" ))
+
+p <- out_data %>%
+  ggplot(aes(x = cpu, y = y, group = subspaceid, color= subspaceid)) +
+  geom_line() +
+  facet_wrap(vars(subspaceid, id), scales = "free_y", nrow = 2) +
+  theme(text = element_text(size=10), legend.position = "bottom" )+
+  scale_color_viridis_d()
+p
+```
+
+## Extract features
+
+```{r features}
 library(GGally)
 data <- utilization_curves %>%
   dplyr::select(id, y) 
-features <- outfit::get_features(data = data)
+features <- outfit::get_features(data = data, df_mu = 10)
 
 d <- utilization_curves %>%
   dplyr::select(id, subspaceid) %>%
@@ -85,9 +103,9 @@ features <- dplyr::full_join(features, d, by = "id" )
 
 
 p <- GGally::ggparcoord(features,
-  columns = 2:10, groupColumn = 11, order = "Outlying",
+  columns = 2: (ncol(features)-1), groupColumn = ncol(features), order = "Outlying",
   showPoints = TRUE,
-  alphaLines = 0.4, scale = "uniminmax",
+  alphaLines = 0.4, scale = "uniminmax"
 ) +
   #scale_color_brewer(palette = "RdYlGn") +
   scale_color_viridis_d() +
@@ -95,4 +113,24 @@ p <- GGally::ggparcoord(features,
   xlab("Features") +
   ylab("Values")
 print(p)
+```
+
+```{r outfit}
+out <- stray::find_HDoutliers(features[, 2:(ncol(features)-1)], alpha = 0.01
+)
+
+utilization_curves %>%
+  filter(id %in%(out$outliers)) %>%
+  select(id, subspaceid) %>%
+  unique()
+
+score <- data.frame(id = 1:nrow(features), score = out$out_scores)
+
+d <- utilization_curves %>%
+  dplyr::select(id, subspaceid) %>%
+  unique()
+
+data_score <- full_join(d,score, by = "id")
+data_score %>% arrange(desc(score)) %>% head(10)
+
 ```
