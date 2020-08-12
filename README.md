@@ -17,7 +17,7 @@ Status](https://travis-ci.org/pridiltal/outfit.svg?branch=master)](https://travi
 [![Last-changedate](https://img.shields.io/badge/last%20change-2020--08--12-yellowgreen.svg)](/commits/master)
 <!-- badges: end -->
 
-The goal of outfit is to detect outliers in mutivariate functional data
+The goal of outfit is to detect outliers in multivariate functional data
 
 ## Installation
 

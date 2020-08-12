@@ -25,7 +25,7 @@ knitr::opts_chunk$set(
 [![Last-changedate](https://img.shields.io/badge/last%20change-`r gsub('-', '--', Sys.Date())`-yellowgreen.svg)](/commits/master)
 <!-- badges: end -->
 
-The goal of outfit is to detect outliers in mutivariate functional data
+The goal of outfit is to detect outliers in multivariate functional data
 
 ## Installation
 
