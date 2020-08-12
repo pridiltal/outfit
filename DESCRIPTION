@@ -1,15 +1,22 @@
 Package: outfit
 Title: What the Package Does (One Line, Title Case)
 Version: 0.0.0.9000
-Authors@R: 
-    person(given = "First",
-           family = "Last",
+Authors@R: c(
+    person(given = "Priyanga Dilini",
+           family = "Talagala",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+           email = "pritalagala@gmail.com",
+           comment = c(ORCID = "0000-0003-2870-7449")),
+    person(given = "Cole",
+           family = "Sodja",
+           role = c("aut"),
+           email = "cole.sodja@microsoft.com")
+           )
 Description: What the package does (one paragraph).
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
+Depends: 
+    R (>= 2.10)

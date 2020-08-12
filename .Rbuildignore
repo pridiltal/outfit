@@ -1,3 +1,10 @@
 ^outfit\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
+^data-raw$
+^README\.md$
+^README\.Rmd$
+^README-.*\.png$
+^\.travis\.yml$
+^docs
+^data-raw$
