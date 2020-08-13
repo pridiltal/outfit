@@ -22,7 +22,17 @@ Depends:
     R (>= 2.10)
 Imports: 
     gamlss,
-    splines,
+    splines2,
     dplyr,
     purrr,
-    magrittr
+    magrittr,
+    ggplot2,
+    tidyr
+Suggests: 
+    knitr,
+    rmarkdown,
+    GGally,
+    stray,
+    oddstream,
+    stats
+VignetteBuilder: knitr

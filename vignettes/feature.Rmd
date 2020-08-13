@@ -1,0 +1,173 @@
+---
+title: "Feature Comparison"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Feature Comparison}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+```{r setup}
+library(outfit)
+library(magrittr)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+```
+
+## Explore `utilization_curves` dataset
+
+```{r example}
+## basic example code
+head(utilization_curves)
+
+p <- utilization_curves %>%
+  ggplot(aes(x = cpu, y = y, group = id, color= subspaceid)) +
+  geom_line() +
+  facet_wrap(~subspaceid, scales = "free_y", nrow = 2) +
+  theme(text = element_text(size=10), legend.position = "bottom" )+
+  scale_color_viridis_d()
+
+print(p)
+
+frq <- utilization_curves %>%
+  dplyr::select(id, subspaceid) %>%
+  unique() %>% 
+  group_by(subspaceid) %>% 
+  tally()
+
+print(frq)
+```
+
+## Outlying Series
+
+```{r outlier}
+types <- unique(utilization_curves$subspaceid)
+
+out_data <- utilization_curves %>%
+  filter(subspaceid %in% c("0 anomaly_location_shift", "0 anomaly_scale_shift", "0 anomaly_shape_shift", "0 anomaly_rw" ))
+
+p <- out_data %>%
+  ggplot(aes(x = cpu, y = y, group = subspaceid, color= subspaceid)) +
+  geom_line() +
+  facet_wrap(vars(subspaceid, id), scales = "free_y", nrow = 2) +
+  theme(text = element_text(size=10), legend.position = "bottom" )+
+  scale_color_viridis_d()
+p
+```
+
+## Extract features
+
+```{r features}
+library(GGally)
+data <- utilization_curves %>%
+  dplyr::select(id, y)
+features <- outfit::get_features(data = data, family = "NO")
+
+d <- utilization_curves %>%
+  dplyr::select(id, subspaceid) %>%
+  unique()
+
+features <- dplyr::full_join(features, d, by = "id" )
+
+
+
+p <- GGally::ggparcoord(features,
+  columns = 2: (ncol(features)-1), groupColumn = ncol(features), order = "Outlying",
+  showPoints = TRUE,
+  alphaLines = 0.4, scale = "uniminmax"
+) +
+  #scale_color_brewer(palette = "RdYlGn") +
+  scale_color_viridis_d() +
+  theme(legend.position = "bottom") +
+  xlab("Features") +
+  ylab("Values")
+
+# plotly::ggplotly(p)
+print(p)
+```
+
+```{r outfit}
+out <- stray::find_HDoutliers(features[, 2:(ncol(features)-1)], alpha = 0.01
+)
+
+utilization_curves %>%
+  filter(id %in%(out$outliers)) %>%
+  select(id, subspaceid) %>%
+  unique()
+
+score <- data.frame(id = 1:nrow(features), score = out$out_scores)
+
+d <- utilization_curves %>%
+  dplyr::select(id, subspaceid) %>%
+  unique()
+
+data_score <- full_join(d,score, by = "id")
+data_score %>% arrange(desc(score)) %>% head(10)
+
+out_data <- utilization_curves %>%
+  filter(id %in%(out$outliers))
+
+p <- out_data %>%
+  ggplot(aes(x = cpu, y = y, group = subspaceid, color= subspaceid)) +
+  geom_line() +
+  facet_wrap(vars(subspaceid, id), scales = "free_y", nrow = 2) +
+  theme(text = element_text(size=10), legend.position = "bottom" )+
+  scale_color_viridis_d()
+p
+
+```
+
+
+## A comparison with time series features
+
+
+```{r}
+sensor_data <- utilization_curves %>%
+  as_tibble() %>%
+  dplyr::select(id, y) %>%
+  group_by(id) %>%
+  mutate(row = row_number()) %>%
+  pivot_wider(names_from = id, values_from = y) %>%
+  dplyr::select(-row)
+
+tsfeatures <- oddstream::extract_tsfeatures(sensor_data) %>% as.data.frame()
+
+out <- stray::find_HDoutliers(tsfeatures, knnsearchtype = "brute", alpha = 0.05)
+
+utilization_curves %>%
+  filter(id %in%(out$outliers)) %>%
+  select(id, subspaceid) %>%
+  unique()
+
+score <- data.frame(id = 1:nrow(tsfeatures), score = out$out_scores)
+
+d <- utilization_curves %>%
+  dplyr::select(id, subspaceid) %>%
+  unique()
+
+data_score <- full_join(d, score, by = "id")
+data_score %>% arrange(desc(score)) %>% head(10)
+
+out_data <- utilization_curves %>%
+  filter(id %in%(out$outliers))
+
+p <- out_data %>%
+  ggplot(aes(x = cpu, y = y, group = subspaceid, color= subspaceid)) +
+  geom_line() +
+  facet_wrap(vars(subspaceid, id), scales = "free_y", nrow = 2) +
+  theme(text = element_text(size=10), legend.position = "bottom" )+
+  scale_color_viridis_d()
+p
+
+```
+

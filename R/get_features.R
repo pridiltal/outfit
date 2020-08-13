@@ -16,7 +16,7 @@
 #' @param df_sig Degrees of freedom - sigma;
 #' @return An object of class features.
 #' @import gamlss
-#' @importFrom splines bs
+#' @importFrom splines2 bSpline
 #' @importFrom dplyr filter
 #' @importFrom purrr map
 #' @importFrom stats coef
@@ -32,8 +32,8 @@ get_features <- function(data, family= "NO", df_mu=5, degree_mu= 1,
     y <- d_y[,2]
     x <- 1:length(y)
     # B-spline for both location and scale
-    fit_g <- gamlss::gamlss( y ~ splines::bs(x, df=df_mu, degree=degree_mu),
-                             sigma.formula =~ splines::bs(x, df=df_sig, degree = degree_sig),
+    fit_g <- gamlss::gamlss( y ~ splines2::bSpline(x, df=df_mu, degree=degree_mu),
+                             sigma.formula =~ splines2::bSpline(x, df=df_sig, degree = degree_sig),
                              family = family, control = gamlss::gamlss.control(trace=FALSE))
     #coefficients of basis for location (log-scale)
     loc_f<- stats::coef(fit_g)[-1] %>% scale()
